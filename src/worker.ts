@@ -18,6 +18,9 @@ type Response = {
   startWorker: () => Promise<void>;
 };
 
+const diffNowSeconds = (dateTime: DateTime): number =>
+  Math.abs(dateTime.diffNow("seconds").seconds);
+
 export const createWorker = (params: {
   config: Config;
 }): Response => {
@@ -31,7 +34,7 @@ export const createWorker = (params: {
     if (
       player.isPlaying &&
       lastCheck &&
-      Math.abs(lastCheck.diffNow("seconds").seconds) < 60
+      diffNowSeconds(lastCheck) < params.config.reaction.timeoutSeconds
     ) {
       return;
     }
@@ -70,7 +73,10 @@ export const createWorker = (params: {
     }
 
     const isSomeonePresent = matchingSensors.some((sensor) => {
-      return Math.abs(sensor.state.lastupdated.diffNow("seconds").seconds) < 60;
+      return (
+        diffNowSeconds(sensor.state.lastupdated) <
+        params.config.reaction.timeoutSeconds
+      );
     });
 
     if (!isSomeonePresent) {
@@ -94,7 +100,7 @@ export const createWorker = (params: {
     await hueQueries.getSensors({ hueClient });
     console.log("Starting worker");
 
-    setInterval(handleTick, 1000);
+    setInterval(handleTick, params.config.reaction.checkIntervalMilliSeconds);
   };
 
   return {
