@@ -23,18 +23,25 @@ export class Player {
     }
   }
 
-  private destroyCurrent(): void {
+  public destroyCurrent(): void {
     this.pause();
     if (this.playerInstance) {
       this.playerInstance.stop();
       this.playerInstance = null;
     }
+
+    this.playerInstance = null;
   }
 
-  public play(path: string): void {
+  public play(path: string, onEnd?: () => void): void {
     this.destroyCurrent();
     this.playerInstance = new FFPlay(path);
 
-    this.playerInstance.on("stopped", this.destroyCurrent);
+    this.playerInstance.on("stopped", () => {
+      if (onEnd) {
+        onEnd();
+      }
+      this.destroyCurrent();
+    });
   }
 }

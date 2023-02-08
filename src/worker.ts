@@ -25,11 +25,18 @@ export const createWorker = (params: {
   const hueClient = createHueClient({ hueConfig: params.config.hue, logger });
 
   const player = new Player();
+  let lastCheck: DateTime | null = null;
 
   const handleTick = async () => {
-    if (player.isPlaying) {
+    if (
+      player.isPlaying &&
+      lastCheck &&
+      Math.abs(lastCheck.diffNow("seconds").seconds) < 60
+    ) {
       return;
     }
+
+    lastCheck = DateTime.utc();
 
     const sensorsResult = await hueQueries.getSensors({
       hueClient,
@@ -67,7 +74,12 @@ export const createWorker = (params: {
     });
 
     if (!isSomeonePresent) {
+      player.destroyCurrent();
       logger.info("Tick, no one present");
+      return;
+    }
+
+    if (player.isPlaying) {
       return;
     }
 
