@@ -1,8 +1,7 @@
-
 declare module "ffplay" {
   import { EventEmitter } from "events";
   export class FFPlay extends EventEmitter {
-    constructor(path: string): FFPlay;
+    constructor(path: string);
 
     stop(): void;
     pause(): void;
@@ -10,4 +9,3 @@ declare module "ffplay" {
   }
   export default FFPlay;
 }
-
