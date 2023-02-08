@@ -1,5 +1,7 @@
 import fs from "fs";
 import path from "path";
+import { Logger } from "../logger";
+import { DateTime } from "luxon";
 
 const getMainSongs = () => {
   const folder = path.join(process.cwd(), "/songs/main");
@@ -14,18 +16,26 @@ const getNightSongs = () => {
 const nightSongs = getNightSongs();
 
 export const songService = {
-  getSongsBasedOnTime: (): string[] => {
-    const hour = new Date().getHours();
+  getSongsBasedOnTime: (logger: Logger): string[] => {
+    const now = DateTime.now();
 
-    if (hour >= 16 || hour <= 6) {
+    if (now.hour >= 16 || now.hour <= 6) {
+      logger.info(
+        { currentTime: now.toFormat("HH:mm") },
+        "It's night time, playing night songs",
+      );
       return [...mainSongs, ...nightSongs];
     }
 
+    logger.info(
+      { currentTime: now.toFormat("HH:mm") },
+      "It's day time, playing day songs",
+    );
     return mainSongs;
   },
 
-  getSongBasedOnTime: (): string => {
-    const songs = songService.getSongsBasedOnTime();
+  getSongBasedOnTime: (logger: Logger): string => {
+    const songs = songService.getSongsBasedOnTime(logger);
     const randomIndex = Math.floor(Math.random() * songs.length);
     return songs[randomIndex];
   },

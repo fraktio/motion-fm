@@ -29,18 +29,13 @@ export class Player {
       this.playerInstance.stop();
       this.playerInstance = null;
     }
-
-    this.playerInstance = null;
   }
 
-  public play(path: string, onEnd?: () => void): void {
+  public play(path: string): void {
     this.destroyCurrent();
     this.playerInstance = new FFPlay(path);
 
     this.playerInstance.on("stopped", () => {
-      if (onEnd) {
-        onEnd();
-      }
       this.destroyCurrent();
     });
   }

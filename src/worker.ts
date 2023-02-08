@@ -83,9 +83,9 @@ export const createWorker = (params: {
       return;
     }
 
-    logger.info("Tick, play song");
-    const songPath = songService.getSongBasedOnTime();
+    const songPath = songService.getSongBasedOnTime(logger);
 
+    logger.info("Tick, play song");
     player.play(songPath);
   };
 
