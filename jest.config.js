@@ -4,5 +4,5 @@ module.exports = {
   transform: {
     "^.+.test.ts$": ["@swc/jest"],
   },
-  testMatch: ["<rootDir>/src/__tests__/*.test.ts"],
+  testMatch: ["<rootDir>/src/**/__tests__/*.test.ts"],
 };

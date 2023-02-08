@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`config envNames should have the correct values 1`] = `
+{
+  "API_PORT": "API_PORT",
+  "HUE_ADDRESS": "HUE_ADDRESS",
+  "HUE_SENSOR_IDS": "HUE_SENSOR_IDS",
+  "HUE_USERNAME": "HUE_USERNAME",
+  "LOGGING_LEVEL": "LOGGING_LEVEL",
+}
+`;
