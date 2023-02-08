@@ -9,20 +9,7 @@ on:
     - prod
 
 jobs:
-  legacy-daweb-api-middleware-docker:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Check out code
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 2
-
-    - name: Build Docker image
-      working-directory: .
-      run: docker build -t repeater -f ./Dockerfile .
-
-  legacy-daweb-api-middleware:
+  check:
     runs-on: ubuntu-latest
 
     steps:
