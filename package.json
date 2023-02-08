@@ -1,5 +1,5 @@
 {
-  "name": "legacy-daweb-api-middleware",
+  "name": "motion-fm",
   "version": "1.0.0",
   "description": "Middleware for forwarding sanoma data to multiple places",
   "scripts": {
