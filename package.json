@@ -4,8 +4,10 @@
   "description": "Middleware for forwarding sanoma data to multiple places",
   "scripts": {
     "test": "jest",
+    "test:update": "jest -u",
     "dev": "tsc-watch --onSuccess \"node --require dotenv/config ./dist/index.js\" | pino-pretty",
     "build": "tsc --project tsconfig.json",
+    "serve": "node --require dotenv/config ./dist/index.js",
     "typescript-check": "tsc",
     "lint": "rome check ."
   },

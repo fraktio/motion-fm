@@ -1,10 +1,32 @@
-import fs from "fs";
+import { DateTime, Zone } from "luxon";
 
 const printError = (message: string): void => {
   const error = new Error(
     `${message}\n\nFix invalid environment variable and restart the application\n`,
   );
   console.error(error);
+};
+
+export const getTimezone = (envKey: string, fallback?: string): Zone => {
+  const value = process.env[envKey];
+
+  const timezone = value ?? fallback;
+
+  if (!timezone) {
+    printError(`Environment variable ${envKey} is not set.`);
+    process.exit(1);
+  }
+
+  const dateTime = DateTime.utc().setZone(timezone);
+
+  if (dateTime.invalidExplanation) {
+    printError(
+      `Environment variable ${envKey}. ${dateTime.invalidExplanation}`,
+    );
+    process.exit(1);
+  }
+
+  return dateTime.zone;
 };
 
 export const getEnv = <T extends string>(

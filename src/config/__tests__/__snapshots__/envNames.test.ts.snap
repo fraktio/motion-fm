@@ -7,5 +7,6 @@ exports[`config envNames should have the correct values 1`] = `
   "HUE_SENSOR_IDS": "HUE_SENSOR_IDS",
   "HUE_USERNAME": "HUE_USERNAME",
   "LOGGING_LEVEL": "LOGGING_LEVEL",
+  "TZ": "TZ",
 }
 `;

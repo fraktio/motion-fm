@@ -1,3 +1,4 @@
+export const TZ = "TZ";
 export const API_PORT = "API_PORT";
 export const LOGGING_LEVEL = "LOGGING_LEVEL";
 
