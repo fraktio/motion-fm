@@ -72,12 +72,9 @@ export const createWorker = (params: {
       return;
     }
 
-    const isSomeonePresent = matchingSensors.some((sensor) => {
-      return (
-        diffNowSeconds(sensor.state.lastupdated) <
-        params.config.reaction.timeoutSeconds
-      );
-    });
+    const isSomeonePresent = matchingSensors.some(
+      (sensor) => sensor.state.presence,
+    );
 
     if (!isSomeonePresent) {
       player.destroyCurrent();
