@@ -1,0 +1,23 @@
+[Unit]
+Description=Motion FM
+[Service]
+ExecStart=./start.sh
+WorkingDirectory=/home/ubuntu/motion-fm
+RestartSec=10
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=motion-fm
+Environment=PATH=/usr/bin:/usr/local/bin
+
+Environment="TZ=Europe/Helsinki"
+Environment="PLATFORM=local"
+Environment="LOGGING_LEVEL=info"
+Environment="HUE_USERNAME=<>"
+Environment="HUE_ADDRESS=<>"
+Environment="HUE_SENSOR_IDS=13"
+Environment="REACTION_TIMEOUT_SECONDS=40"
+Environment="REACTION_CHECK_INTERVAL_MILLISECONDS=500"
+
+[Install]
+WantedBy=multi-user.target
