@@ -1,7 +1,7 @@
 [Unit]
 Description=Motion FM
 [Service]
-ExecStart=./start.sh
+ExecStart=node ./dist/index.js
 WorkingDirectory=/home/ubuntu/motion-fm
 RestartSec=10
 Restart=always
