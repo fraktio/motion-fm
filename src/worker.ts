@@ -93,7 +93,8 @@ export const createWorker = (params: {
     const songPath = songService.getSongBasedOnTime(logger);
 
     const duration = readFileDuration(songPath, logger);
-    const startAt = duration ? randomIntFromInterval(0, duration * 0.7) : 0;
+    const startAt =
+      duration && duration > 20 ? randomIntFromInterval(0, duration * 0.7) : 0;
     logger.info({ startAt }, "Tick, play song");
 
     player.play(songPath, startAt);
