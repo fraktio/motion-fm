@@ -31,9 +31,15 @@ export class Player {
     }
   }
 
-  public play(path: string): void {
+  public play(path: string, startsAt?: number): void {
     this.destroyCurrent();
-    this.playerInstance = new FFPlay(path);
+    const opts = ["-nodisp", "-autoexit"];
+    if (startsAt) {
+      opts.unshift(startsAt.toString());
+      opts.unshift("-ss");
+    }
+
+    this.playerInstance = new FFPlay(path, opts);
 
     this.playerInstance.on("stopped", () => {
       this.destroyCurrent();

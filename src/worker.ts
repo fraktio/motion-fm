@@ -10,6 +10,7 @@ import { createHueClient, HueClient } from "./hue/hueClient";
 import { hueQueries } from "./hue/hueQueries";
 import { createLogger, Logger } from "./logger";
 import { Player } from "./player";
+import { randomIntFromInterval, readFileDuration } from "./services/file";
 import { songService } from "./songs/songService";
 
 type Response = {
@@ -29,6 +30,7 @@ export const createWorker = (params: {
 
   const player = new Player();
   let lastCheck: DateTime | null = null;
+  let startSongFromStart: boolean = false;
 
   const handleTick = async () => {
     if (
@@ -78,9 +80,11 @@ export const createWorker = (params: {
 
     if (!isSomeonePresent) {
       player.destroyCurrent();
+      startSongFromStart = false;
       logger.info("Tick, no one present");
       return;
     }
+    startSongFromStart = true;
 
     if (player.isPlaying) {
       return;
@@ -88,8 +92,11 @@ export const createWorker = (params: {
 
     const songPath = songService.getSongBasedOnTime(logger);
 
-    logger.info("Tick, play song");
-    player.play(songPath);
+    const duration = readFileDuration(songPath, logger);
+    const startAt = duration ? randomIntFromInterval(0, duration * 0.7) : 0;
+    logger.info({ startAt }, "Tick, play song");
+
+    player.play(songPath, startAt);
   };
 
   const startWorker = async () => {
