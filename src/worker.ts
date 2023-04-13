@@ -142,8 +142,8 @@ export const createWorker = (params: {
       });
     });
 
-    app.listen(4000, () => {
-      logger.info("listening on port 4000");
+    app.listen(8080, () => {
+      logger.info("listening on port 8080");
     });
 
     setInterval(handleTick, params.config.reaction.checkIntervalMilliSeconds);
