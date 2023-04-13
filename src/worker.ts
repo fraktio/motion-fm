@@ -1,23 +1,24 @@
 import { draw } from "io-ts/lib/Decoder";
+import express from "express";
 import { DateTime } from "luxon";
 import { Config } from "./config/config";
-import { HueDateTimeCodec } from "./hue/codecs/HueDateTimeCodec";
-import {
-  HueSensorDecoder,
-  isSensorZLLPresence,
-} from "./hue/codecs/sensors/HueSensor";
+import { isSensorZLLPresence } from "./hue/codecs/sensors/HueSensor";
 import { createHueClient, HueClient } from "./hue/hueClient";
 import { hueQueries } from "./hue/hueQueries";
 import { createLogger, Logger } from "./logger";
 import { Player } from "./player";
 import { randomIntFromInterval, readFileDuration } from "./services/file";
 import { songService } from "./songs/songService";
+import { DayTime } from "./nightTime";
+import { DayTimeCodec } from "./DayTimeCodec";
 
 type Response = {
   logger: Logger;
   hueClient: HueClient;
   startWorker: () => Promise<void>;
 };
+
+const dayTime = new DayTime();
 
 const diffNowSeconds = (dateTime: DateTime): number =>
   Math.abs(dateTime.diffNow("seconds").seconds);
@@ -90,9 +91,11 @@ export const createWorker = (params: {
       return;
     }
 
-    const songPath = songService.getSongBasedOnTime(logger);
+    const songPath = songService.getSongBasedOnTime(logger, dayTime);
 
-    const duration = readFileDuration(songPath, logger);
+    const duration = startSongFromStart
+      ? 0
+      : readFileDuration(songPath, logger);
     const startAt =
       duration && duration > 20 ? randomIntFromInterval(0, duration * 0.7) : 0;
     logger.info({ startAt }, "Tick, play song");
@@ -104,6 +107,44 @@ export const createWorker = (params: {
     await hueQueries.getConfig({ hueClient });
     await hueQueries.getSensors({ hueClient });
     console.log("Starting worker");
+
+    const app = express();
+    app.use(express.json());
+
+    app.get("/api/day-time", (req, res) => {
+      res.status(200).json({
+        start: dayTime.getDayStartHour(),
+        end: dayTime.getDayEndHour(),
+      });
+    });
+
+    app.post("/api/skip", (_, res) => {
+      player.destroyCurrent();
+
+      return res.status(200).json({ message: "OK" });
+    });
+
+    app.post("/api/day-time", (req, res) => {
+      const parsed = DayTimeCodec.decode(req.body);
+
+      if (parsed._tag === "Left") {
+        return res.status(400).json({
+          error: draw(parsed.left),
+        });
+      }
+
+      dayTime.setDayStartHour(parsed.right.start);
+      dayTime.setDayEndHour(parsed.right.end);
+
+      res.status(200).json({
+        start: dayTime.getDayStartHour(),
+        end: dayTime.getDayEndHour(),
+      });
+    });
+
+    app.listen(4000, () => {
+      logger.info("listening on port 4000");
+    });
 
     setInterval(handleTick, params.config.reaction.checkIntervalMilliSeconds);
   };
