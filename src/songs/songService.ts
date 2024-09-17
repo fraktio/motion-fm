@@ -8,7 +8,7 @@ const getLastWeekdayOfMonthSongs = () => {
   const folder = path.join(process.cwd(), "/songs/last-weekday-month");
   return fs.readdirSync(folder).map((filename) => path.join(folder, filename));
 };
-const lastWeekdayOfMonthSongs= getLastWeekdayOfMonthSongs();
+const lastWeekdayOfMonthSongs = getLastWeekdayOfMonthSongs();
 
 const getMainSongs = () => {
   const folder = path.join(process.cwd(), "/songs/main");
@@ -31,7 +31,7 @@ export const songService = {
         { currentTime: now.toFormat("HH:mm") },
         "It's last weekday of the month, playing last weekday of the month songs",
       );
-      return [...lastWeekdayOfMonthSongs]
+      return [...lastWeekdayOfMonthSongs];
     }
 
     if (!dayTime.isDayTime()) {
@@ -57,23 +57,20 @@ export const songService = {
 };
 
 function isTodayLastWeekday(): boolean {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
 
-    let lastWeekday = new Date(year, month + 1, 0); // Last day of the month
+  let lastWeekday = new Date(year, month + 1, 0); // Last day of the month
 
-    while (lastWeekday.getDay() === 0 || lastWeekday.getDay() === 6) {
-        lastWeekday.setDate(lastWeekday.getDate() - 1);
-    }
+  while (lastWeekday.getDay() === 0 || lastWeekday.getDay() === 6) {
+    lastWeekday.setDate(lastWeekday.getDate() - 1);
+  }
 
-  /*
   return (
-    today.getDate() === lastWeekday.getDate() &&
+    (today.getDate() === lastWeekday.getDate() ||
+      today.getDate() === lastWeekday.getDate() - 1) &&
     today.getMonth() === lastWeekday.getMonth() &&
     today.getFullYear() === lastWeekday.getFullYear()
   );
-  */
-  return true;
 }
-

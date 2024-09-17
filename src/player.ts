@@ -34,6 +34,7 @@ export class Player {
   public play(path: string, startsAt?: number): void {
     this.destroyCurrent();
     const opts = ["-nodisp", "-autoexit"];
+    console.log(222222, startsAt);
     if (startsAt) {
       opts.unshift(startsAt.toString());
       opts.unshift("-ss");

@@ -9,7 +9,8 @@
     "build": "tsc --project tsconfig.json",
     "serve": "node --require dotenv/config ./dist/index.js",
     "typescript-check": "tsc",
-    "lint": "rome check ."
+    "lint": "rome check .",
+    "lint:fix": "rome format --write ."
   },
   "author": "",
   "license": "ISC",

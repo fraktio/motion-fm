@@ -85,9 +85,9 @@ export const createWorker = (params: {
       logger.info("Tick, no one present");
       return;
     }
-    startSongFromStart = true;
 
     if (player.isPlaying) {
+      startSongFromStart = true;
       return;
     }
 
@@ -97,7 +97,7 @@ export const createWorker = (params: {
       ? 0
       : readFileDuration(songPath, logger);
     const startAt =
-      duration && duration > 20 ? randomIntFromInterval(0, duration * 0.7) : 0;
+      duration && duration > 30 ? randomIntFromInterval(0, duration * 0.6) : 0;
     logger.info({ startAt }, "Tick, play song");
 
     player.play(songPath, startAt);
