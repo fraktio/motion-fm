@@ -111,7 +111,7 @@ export const createWorker = (params: {
     const app = express();
     app.use(express.json());
 
-    app.get("/api/day-time", (req, res) => {
+    app.get("/api/day-time", (_, res) => {
       res.status(200).json({
         start: dayTime.getDayStartHour(),
         end: dayTime.getDayEndHour(),
