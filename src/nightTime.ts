@@ -2,7 +2,7 @@ import { DateTime } from "luxon";
 
 export class DayTime {
   private DAY_START_HOUR = 8;
-  private DAY_END_HOUR = 20;
+  private DAY_END_HOUR = 22;
 
   public isDayTime(): boolean {
     const now = DateTime.now();
