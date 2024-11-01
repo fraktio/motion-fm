@@ -25,8 +25,7 @@ const nightSongs = getNightSongs();
 export const songService = {
   getSongsBasedOnTime: (logger: Logger, dayTime: DayTime): string[] => {
     const now = DateTime.now();
-
-    if (isTodayLastWeekday()) {
+    if (isTodayLastWeekday() || isTodayFirstWeekdayOfMonth()) {
       logger.info(
         { currentTime: now.toFormat("HH:mm") },
         "It's last weekday of the month, playing last weekday of the month songs",
@@ -56,6 +55,24 @@ export const songService = {
   },
 };
 
+function isTodayFirstWeekdayOfMonth(): boolean {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+
+  let firstWeekday = new Date(year, month, 1);
+
+  while (firstWeekday.getDay() === 0 || firstWeekday.getDay() === 6) {
+    firstWeekday.setDate(firstWeekday.getDate() + 1);
+  }
+
+  return (
+    (today.getDate() === firstWeekday.getDate() ||
+      today.getDate() === firstWeekday.getDate() + 1) &&
+    today.getMonth() === firstWeekday.getMonth() &&
+    today.getFullYear() === firstWeekday.getFullYear()
+  );
+};
 function isTodayLastWeekday(): boolean {
   const today = new Date();
   const year = today.getFullYear();
@@ -74,3 +91,4 @@ function isTodayLastWeekday(): boolean {
     today.getFullYear() === lastWeekday.getFullYear()
   );
 }
+
