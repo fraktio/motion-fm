@@ -26,6 +26,8 @@ WORKDIR /home/node
 COPY --chown=node:node --from=builder /app/dist ./
 COPY --chown=node:node --from=builder /app/package.json ./package.json
 COPY --chown=node:node --from=prod-deps /app/prod-deps/node_modules ./node_modules
+# ideally the songs would be a volume mount, but that would need a separate way to update content
+COPY --chown=node:node ./songs ./songs
 RUN ["rm", "-rf", "/app"]
 USER node
 
