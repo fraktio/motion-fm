@@ -28,6 +28,15 @@ const diffNowSeconds = (dateTime: DateTime): number =>
 export const createWorker = (params: {
   config: Config;
 }): Response => {
+  const createCloseAll = (name: string, code?: number) => (): void => {
+    logger.info(`Received ${name}`);
+    player.destroyCurrent();
+    process.exit(code);
+  };
+
+  process.on("SIGTERM", createCloseAll("SIGTERM"));
+  process.on("SIGINT", createCloseAll("SIGINT"));
+
   const logger = createLogger({ loggingConfig: params.config.logging });
   const hueClient = createHueClient({ hueConfig: params.config.hue, logger });
 
