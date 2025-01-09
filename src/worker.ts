@@ -23,6 +23,8 @@ const dayTime = new DayTime();
 const diffNowSeconds = (dateTime: DateTime): number =>
   Math.abs(dateTime.diffNow("seconds").seconds);
 
+//const ffmpegPath = require('ffmpeg-static');
+
 export const createWorker = (params: {
   config: Config;
 }): Response => {
@@ -32,16 +34,32 @@ export const createWorker = (params: {
   const player = new Player();
   let lastCheck: DateTime | null = null;
   let startSongFromStart: boolean = false;
+  let ticks = 0;
+
+  const isPlaying = () : boolean => {  
+    return (player.isPlaying && lastCheck != null && diffNowSeconds(lastCheck) < params.config.reaction.timeoutSeconds);
+  };
+
+  const pressPlay = () => {
+    const songPath = songService.getSongBasedOnTime(logger, dayTime);
+
+    const duration = startSongFromStart
+      ? 0
+      : readFileDuration(songPath, logger);
+    const startAt =
+      duration && duration > 30 ? randomIntFromInterval(0, duration * 0.6) : 0;
+    logger.info({ startAt }, "Tick, play song");
+
+    player.play(songPath, startAt);
+  }
 
   const handleTick = async () => {
-    if (
-      player.isPlaying &&
-      lastCheck &&
-      diffNowSeconds(lastCheck) < params.config.reaction.timeoutSeconds
-    ) {
+    if (isPlaying()) {
       return;
     }
 
+    ticks++;
+    
     lastCheck = DateTime.utc();
 
     const sensorsResult = await hueQueries.getSensors({
@@ -83,7 +101,11 @@ export const createWorker = (params: {
       player.destroyCurrent();
       startSongFromStart = false;
       logger.info("Tick, no one present");
-      return;
+      if (params.config.reaction.forceOccasionalPlay && (ticks % 10 == 0)) {
+        logger.info("let's play something anyways");
+      } else {
+        return;
+      }
     }
 
     if (player.isPlaying) {
@@ -91,16 +113,7 @@ export const createWorker = (params: {
       return;
     }
 
-    const songPath = songService.getSongBasedOnTime(logger, dayTime);
-
-    const duration = startSongFromStart
-      ? 0
-      : readFileDuration(songPath, logger);
-    const startAt =
-      duration && duration > 30 ? randomIntFromInterval(0, duration * 0.6) : 0;
-    logger.info({ startAt }, "Tick, play song");
-
-    player.play(songPath, startAt);
+    pressPlay();
   };
 
   const startWorker = async () => {
@@ -120,6 +133,16 @@ export const createWorker = (params: {
 
     app.post("/api/skip", (_, res) => {
       player.destroyCurrent();
+
+      return res.status(200).json({ message: "OK" });
+    });
+
+    app.post("/api/play", (_, res) => {
+      if (isPlaying()) {
+        return res.status(400).json({ error: "Already playing" });
+      }
+
+      pressPlay();
 
       return res.status(200).json({ message: "OK" });
     });

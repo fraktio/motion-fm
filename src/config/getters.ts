@@ -73,6 +73,12 @@ export const getEnvInt = (envKey: string): number => {
   return parseInt(value, 10);
 };
 
+export const getEnvBoolean = (envKey: string): boolean => {
+//  const value = getEnv(envKey);
+  const value = process.env[envKey];
+  return Boolean(value);
+};
+
 export const getEnvList = <T extends string>(
   envKey: string,
   separator = ",",
