@@ -12,6 +12,15 @@ jobs:
     steps:
       - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
 
+      - name: Docker Metadata
+        uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96 #v5.6.1
+        with:
+          images: ghcr.io/fraktio/motion-fm:latest
+          tags: latest
+          labels: |
+            org.opencontainers.image.title=motion-fm
+            org.opencontainers.image.description=Motion FM
+
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 

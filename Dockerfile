@@ -39,6 +39,7 @@ RUN apt update && apt install -y ffmpeg
 # ideally the songs would be a volume mount, but that would need a separate way to update content
 COPY --chown=node:node ./songs ./songs
 RUN ["rm", "-rf", "/app"]
+RUN usermod -aG audio node
 USER node
 
 ENV API_PORT=8080
