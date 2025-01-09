@@ -26,6 +26,15 @@ const diffNowSeconds = (dateTime: DateTime): number =>
 export const createWorker = (params: {
   config: Config;
 }): Response => {
+  const createCloseAll = (name: string, code?: number) => (): void => {
+    logger.info(`Received ${name}`);
+    player.destroyCurrent();
+    process.exit(code);
+  };
+
+  process.on("SIGTERM", createCloseAll("SIGTERM"));
+  process.on("SIGINT", createCloseAll("SIGINT"));
+
   const logger = createLogger({ loggingConfig: params.config.logging });
   const hueClient = createHueClient({ hueConfig: params.config.hue, logger });
 
@@ -33,15 +42,28 @@ export const createWorker = (params: {
   let lastCheck: DateTime | null = null;
   let startSongFromStart: boolean = false;
 
+  const isPlaying = () : boolean => {  
+    return (player.isPlaying && lastCheck != null && diffNowSeconds(lastCheck) < params.config.reaction.timeoutSeconds);
+  };
+
+  const pressPlay = () => {
+    const songPath = songService.getSongBasedOnTime(logger, dayTime);
+
+    const duration = startSongFromStart
+      ? 0
+      : readFileDuration(songPath, logger);
+    const startAt =
+      duration && duration > 30 ? randomIntFromInterval(0, duration * 0.6) : 0;
+    logger.info({ startAt }, "Tick, play song");
+
+    player.play(songPath, startAt);
+  }
+
   const handleTick = async () => {
-    if (
-      player.isPlaying &&
-      lastCheck &&
-      diffNowSeconds(lastCheck) < params.config.reaction.timeoutSeconds
-    ) {
+    if (isPlaying()) {
       return;
     }
-
+    
     lastCheck = DateTime.utc();
 
     const sensorsResult = await hueQueries.getSensors({
@@ -91,16 +113,7 @@ export const createWorker = (params: {
       return;
     }
 
-    const songPath = songService.getSongBasedOnTime(logger, dayTime);
-
-    const duration = startSongFromStart
-      ? 0
-      : readFileDuration(songPath, logger);
-    const startAt =
-      duration && duration > 30 ? randomIntFromInterval(0, duration * 0.6) : 0;
-    logger.info({ startAt }, "Tick, play song");
-
-    player.play(songPath, startAt);
+    pressPlay();
   };
 
   const startWorker = async () => {
@@ -120,6 +133,16 @@ export const createWorker = (params: {
 
     app.post("/api/skip", (_, res) => {
       player.destroyCurrent();
+
+      return res.status(200).json({ message: "OK" });
+    });
+
+    app.post("/api/play", (_, res) => {
+      if (isPlaying()) {
+        return res.status(400).json({ error: "Already playing" });
+      }
+
+      pressPlay();
 
       return res.status(200).json({ message: "OK" });
     });
